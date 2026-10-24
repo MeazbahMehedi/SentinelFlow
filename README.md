@@ -266,7 +266,6 @@ Offline parsing uses **dpkt**, which opens no capture socket. **Scapy is importe
 
 SQLite uses WAL mode, foreign keys, parameterized queries, and a connection per operation. The local launcher uses **one Waitress process with 24 HTTP threads** and a workspace-specific background engine worker for each active account. Do not deploy multiple WSGI processes against the same data directory: worker coordination is intentionally process-local. The shared identity database authenticates users; a scoped workspace resolver selects only the signed-in account’s data store and engine. A browser page holds one SSE connection; this is a small local workspace, not a large multi-user service.
 
-Detailed architecture, data flow, deployment, state, and database diagrams are in [docs/diagrams](docs/diagrams), with the complete [Word SRS](docs/SentinelFlow_SRS.docx).
 
 ## Project structure
 
