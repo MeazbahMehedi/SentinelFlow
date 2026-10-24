@@ -1,0 +1,28 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon with context %}
+{% block actions %}<button class="button secondary" id="repo-refresh" type="button">{{icon('refresh')}} Refresh from GitHub</button>{% endblock %}
+{% block content %}
+<section class="repo-hero"><div><span class="eyebrow">THE WORK CONTINUES ON GITHUB</span><h2>Ideas, built.<br><span class="mint">Progress, in public.</span></h2><p>Meet the developers through their GitHub profiles.<br>Explore their public repositories, languages, and latest updates.</p></div><div class="repo-hero-mark">{{icon('code')}}</div></section>
+<div class="panel repo-toolbar"><div class="search-field">{{icon('search')}}<input id="repo-search" placeholder="Find a project or keyword" aria-label="Search public repositories"></div><select id="repo-language" aria-label="Repository language"><option value="">All languages</option></select><select id="repo-kind" aria-label="Repository type"><option value="">All repositories</option><option value="original">Original projects</option><option value="fork">Forks</option></select><span class="repo-total" id="repo-total">Connecting to GitHub…</span></div>
+<div class="repository-accounts">
+{% for login in github_developers %}
+<section class="panel repository-account" data-github-account="{{login}}">
+ <div class="repo-account-heading">
+  <a class="github-avatar" href="https://github.com/{{login}}" target="_blank" rel="noopener noreferrer" aria-label="Open {{login}} on GitHub"><span data-avatar-fallback>{{login[0]}}</span><img data-github-avatar hidden alt="{{login}} GitHub avatar" width="64" height="64" referrerpolicy="no-referrer"></a>
+  <div class="repo-identity"><span class="eyebrow">DEVELOPER 0{{loop.index}}</span><h3 data-profile-name>{{login}}</h3><a class="text-link" href="https://github.com/{{login}}" target="_blank" rel="noopener noreferrer">@{{login}} {{icon('external')}}</a></div>
+ </div>
+ <div class="github-profile">
+  <p class="github-bio" data-profile-bio>Loading public GitHub profile…</p>
+  <div class="github-details" data-profile-details></div>
+  <div class="github-stats" data-profile-stats></div>
+  <p class="github-profile-status" data-profile-status aria-live="polite">Profile: connecting to GitHub</p>
+ </div>
+ <div class="repo-account-meta"><span data-repo-count>Public repositories</span><span data-repo-state class="badge">Connecting</span></div>
+ <p class="repo-status-message" data-repo-updated>Waiting for GitHub</p>
+ <p class="repo-status-message" data-repo-message aria-live="polite">Fetching public project metadata…</p>
+ <div class="repository-list" data-repo-list><div class="skeleton-card"><div></div><div></div><div></div></div><div class="skeleton-card"><div></div><div></div><div></div></div></div>
+</section>
+{% endfor %}
+</div>
+<div class="callout">{{icon('info')}}<div><strong>Connected to the developers’ GitHub accounts</strong><span>Profile details and public projects come directly from GitHub, with a five-minute cache. These two accounts are fixed in the project code. Changes made to the separate Developers page do not alter this page. Private projects and network captures are never sent to GitHub.</span></div></div>
+<script src="{{url_for('static',filename='js/repositories.js')}}" defer></script>
+{% endblock %}

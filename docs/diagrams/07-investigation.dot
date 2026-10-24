@@ -1,0 +1,4 @@
+digraph G {graph [bgcolor="white",pad="0.3",nodesep="0.38",ranksep="0.5",fontname="Arial"]; node [shape=box,style="rounded,filled",fillcolor="#eaf3ef",color="#7b988b",fontname="Arial",fontsize=12,margin="0.15,0.12"]; edge [color="#537565",arrowsize=0.75,fontname="Arial",fontsize=10]; rankdir=TB;start[label="Select or import a capture"];run[label="Start replay with frozen rules"];alert[label="Threshold reached
+Persist evidence and packet context"];open[label="Open alert details"];review[label="Review trigger window
+Inspect host and related alerts"];decision[label="Disposition",shape=diamond,fillcolor="#fff2d9"];new[label="New or investigating"];resolved[label="Resolved or false positive"];note[label="Save analyst notes
+Export report"];start->run->alert->open->review->decision;decision->new[label="needs more context"];decision->resolved[label="review complete"];new->note;resolved->note;}

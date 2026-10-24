@@ -1,0 +1,7 @@
+digraph G {graph [bgcolor="white",pad="0.3",nodesep="0.38",ranksep="0.5",fontname="Arial"]; node [shape=box,style="rounded,filled",fillcolor="#eaf3ef",color="#7b988b",fontname="Arial",fontsize=12,margin="0.15,0.12"]; edge [color="#537565",arrowsize=0.75,fontname="Arial",fontsize=10]; rankdir=TB;subgraph cluster_host {label="User computer   local deployment";color="#adbbb4";style=rounded; browser[label="Browser
+http://127.0.0.1:5000"]; server[label="Waitress
+One process with 24 HTTP threads",fillcolor="#cfe9dc"]; flask[label="Flask application
+Workspace scoped workers"];data[label="instance directory
+Identity DB private workspaces and media",shape=cylinder];adapter[label="Scapy capture socket
+OS permissions or Npcap"]; browser->server[label="localhost HTTP and SSE"];server->flask;flask->data;adapter->flask[label="packet metadata"]; } interface[label="Network interface
+Only traffic visible to this sensor"]; interface->adapter;}

@@ -1,0 +1,7 @@
+digraph G{graph[bgcolor="white",pad="0.3",nodesep="0.35",ranksep="0.45",fontname="Arial"];node[shape=box,style="rounded,filled",fillcolor="#eaf3ef",color="#7b988b",fontname="Arial",fontsize=12,margin="0.15,0.12"];edge[color="#537565",arrowsize=.7,fontname="Arial",fontsize=10];rankdir=TB;browser[label="GitHub Projects page
+Two configured public developers"];route[label="Authenticated local API
+Allowlisted GitHub account",fillcolor="#cfe9dc"];cache[label="Shared public metadata cache
+Five minute freshness window",shape=cylinder];api[label="GitHub public repository API
+Read only HTTPS requests"];cards[label="Repository cards
+Search language filters stars and update dates"];offline[label="Stale cache or unavailable state
+Cooldown after network or rate limit errors",fillcolor="#fff2d9"];browser->route;route->cache[label="fresh results"];route->api[label="refresh expired cache"];api->cache[label="validated public metadata"];cache->cards;api->offline[label="request fails"];offline->cards[label="clearly labeled state"];}

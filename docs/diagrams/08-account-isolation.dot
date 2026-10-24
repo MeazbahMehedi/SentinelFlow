@@ -1,0 +1,7 @@
+digraph G{graph[bgcolor="white",pad="0.3",nodesep="0.35",ranksep="0.45",fontname="Arial"];node[shape=box,style="rounded,filled",fillcolor="#eaf3ef",color="#7b988b",fontname="Arial",fontsize=12,margin="0.15,0.12"];edge[color="#537565",arrowsize=.7,fontname="Arial",fontsize=10];rankdir=TB;user[label="Gmail or username sign in"];identity[label="Shared identity database
+Unique canonical Gmail and role",shape=cylinder];resolver[label="Authenticated account resolver
+Select store and engine by signed in user ID",fillcolor="#cfe9dc"];first[label="Original first account
+Legacy database and engine"];others[label="Additional accounts
+Separate workspace DB and engine per user"];views[label="Scoped pages streams alerts
+Rules exports and session commands"];shared[label="Shared developer profiles and public GitHub
+Profile editing and host capture require administrator"];user->identity[label="authenticate"];identity->resolver[label="user ID and role"];resolver->first;resolver->others;first->views;others->views;resolver->shared[label="role checks"];}

@@ -1,0 +1,9 @@
+digraph G {graph [bgcolor="white",pad="0.3",nodesep="0.38",ranksep="0.5",fontname="Arial"]; node [shape=box,style="rounded,filled",fillcolor="#eaf3ef",color="#7b988b",fontname="Arial",fontsize=12,margin="0.15,0.12"]; edge [color="#537565",arrowsize=0.75,fontname="Arial",fontsize=10]; rankdir=TB; browser[label="Browser
+Jinja pages and local JavaScript"]; web[label="Flask application
+Authentication routes and validation",fillcolor="#cfe9dc"]; worker[label="Engine
+One worker per account"]; parser[label="dpkt offline parser
+Scapy live adapter"]; detector[label="Detector
+Six event time rules"]; eve[label="Suricata EVE importer
+External signature alerts"]; sql[label="SQLite
+Scoped workspaces and identities",shape=cylinder]; media[label="Private files
+Key photos and CVs",shape=folder];browser->web[label="HTTP and SSE"];web->worker[label="session commands"];worker->parser[label="obtain events"];worker->detector[label="evaluate events"];worker->sql[label="persist packets and evidence"];web->sql[label="query and configure"];web->eve[label="validated file"];eve->sql[label="import alerts"];web->media[label="private access"];}

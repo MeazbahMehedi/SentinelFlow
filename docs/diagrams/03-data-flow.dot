@@ -1,0 +1,7 @@
+digraph G {graph [bgcolor="white",pad="0.3",nodesep="0.38",ranksep="0.5",fontname="Arial"]; node [shape=box,style="rounded,filled",fillcolor="#eaf3ef",color="#7b988b",fontname="Arial",fontsize=12,margin="0.15,0.12"]; edge [color="#537565",arrowsize=0.75,fontname="Arial",fontsize=10]; rankdir=TB; input[label="Capture upload or visible interface"]; validate[label="Validate file type size and packet limit
+Decode IPv4 or IPv6"]; normalize[label="Normalize packet metadata
+Sort imported events by capture time"]; replay[label="Replay scheduler or live queue
+Frozen rule and network snapshot"]; detect[label="Event time windows
+Thresholds and alert suppression"]; persist[label="Transaction
+Packet alert and processed count",shape=cylinder]; views[label="Snapshot API and SSE
+Dashboard investigation and exports"];input->validate->normalize->replay->detect->persist->views;}
