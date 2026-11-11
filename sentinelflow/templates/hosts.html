@@ -1,1 +1,50 @@
-{% extends 'base.html' %}{% from 'macros.html' import icon with context %}{% block content %}<section class="panel"><div class="panel-heading"><div><h3>Observed addresses</h3><p>Top 100 addresses by traffic volume · a packet contributes to both endpoints</p></div><span class="pill">{{totals.hosts}} HOSTS</span></div><div class="host-grid">{% for h in hosts %}<a class="host-card" href="{{url_for('host_detail',ip=h.ip,session=selected or '')}}"><span class="host-symbol">{{icon('network')}}</span><h3 class="mono">{{h.ip}}</h3><span class="muted small">{{h.packets}} endpoint observations</span><div class="host-numbers"><div><span>↑ SENT</span><strong>{{h.sent|bytes}}</strong></div><div><span>↓ RECEIVED</span><strong>{{h.received|bytes}}</strong></div></div><span class="text-link">Investigate host {{icon('arrow')}}</span></a>{% else %}<div class="empty">{{icon('network')}}<strong>No observed hosts yet</strong><span>Analyze a capture to build your host inventory.</span></div>{% endfor %}</div></section>{% endblock %}
+{% extends 'base.html' %}
+{% from 'macros.html' import icon, risk with context %}
+
+{% block content %}
+  <section class="panel">
+    <div class="panel-heading">
+      <div><h3>Conversation map</h3><p>Heaviest host-to-host conversations · node color shows risk from open alerts · drag to rearrange</p></div>
+      <div class="graph-legend">
+        <span><i class="dot low"></i>No open alerts</span>
+        <span><i class="dot medium"></i>Elevated</span>
+        <span><i class="dot critical"></i>High risk</span>
+      </div>
+    </div>
+    <div class="graph-shell">
+      <canvas id="host-graph" role="img" aria-label="Network conversation graph"></canvas>
+      <div class="chart-tooltip" id="graph-tooltip" hidden></div>
+      <div class="chart-empty" id="graph-empty" hidden>Analyze traffic to map conversations.</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div><h3>Observed addresses</h3><p>Top 100 addresses by traffic volume · a packet contributes to both endpoints</p></div>
+      <span class="pill">{{ '{:,}'.format(totals.hosts) }} HOSTS</span>
+    </div>
+    <div class="host-grid">
+      {% for h in hosts %}
+        <a class="host-card" href="{{ url_for('pages.host_detail', ip=h.ip, session=selected or '') }}">
+          <div class="host-card-top">
+            <span class="host-symbol">{{ icon('network') }}</span>
+            {{ risk(h.risk) }}
+          </div>
+          <h3 class="mono">{{ h.ip }}</h3>
+          <span class="muted small">{{ '{:,}'.format(h.packets) }} endpoint observations</span>
+          <div class="host-numbers">
+            <div><span>↑ SENT</span><strong>{{ h.sent|bytes }}</strong></div>
+            <div><span>↓ RECEIVED</span><strong>{{ h.received|bytes }}</strong></div>
+          </div>
+          <span class="text-link">Investigate host {{ icon('arrow') }}</span>
+        </a>
+      {% else %}
+        <div class="empty">
+          {{ icon('network') }}
+          <strong>No observed hosts yet</strong>
+          <span>Analyze a capture to build your host inventory.</span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

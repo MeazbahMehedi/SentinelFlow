@@ -1,3 +1,5 @@
 -r requirements.txt
 pytest==8.4.2
+pytest-cov==7.0.0
 playwright==1.55.0
+ruff==0.16.9

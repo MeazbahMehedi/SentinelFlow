@@ -13,3 +13,4 @@ dist/
 .idea/
 .vscode/
 *.log
+.ruff_cache/

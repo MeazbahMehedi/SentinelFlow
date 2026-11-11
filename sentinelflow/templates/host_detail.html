@@ -1,1 +1,67 @@
-{% extends 'base.html' %}{% from 'macros.html' import icon,packet_table,alert_table with context %}{% block actions %}<a class="button secondary" href="{{url_for('hosts')}}">{{icon('arrow-left')}} Host explorer</a>{% endblock %}{% block content %}<div class="callout">{{icon('network')}}<div><strong class="mono">{{ip}}</strong><span>Address observations do not prove device identity. NAT and dynamic addressing can combine multiple devices.</span></div></div><section class="panel"><div class="panel-heading"><div><h3>Recent host activity</h3><p>Up to 100 recent packets where this address is the source or destination</p></div></div>{{packet_table(records)}}</section><section class="panel"><div class="panel-heading"><div><h3>Associated alerts</h3><p>Up to 50 recent alerts involving this address</p></div></div>{{alert_table(alerts)}}</section>{% endblock %}
+{% extends 'base.html' %}
+{% from 'macros.html' import icon, packet_table, alert_table, risk with context %}
+
+{% block actions %}
+  <a class="button secondary" href="{{ url_for('pages.hosts', session=selected or '') }}">{{ icon('arrow-left') }} Host explorer</a>
+{% endblock %}
+
+{% block content %}
+  {% set st = profile.stats %}
+  <div class="investigation-banner host-banner">
+    <div>
+      <span class="pill">HOST PROFILE</span>
+      <h2 class="mono">{{ ip }}</h2>
+      <p>Address observations do not prove device identity. NAT and dynamic addressing can combine multiple devices.</p>
+    </div>
+    <div class="evidence-number">
+      <strong>{{ profile.risk }}</strong>
+      <span>risk score · {{ profile.risk_level }}</span>
+      {{ risk(profile.risk) }}
+    </div>
+  </div>
+
+  <div class="metrics-grid compact">
+    <div class="metric-card"><span class="eyebrow">PACKETS</span><strong>{{ '{:,}'.format(st.packets) }}</strong></div>
+    <div class="metric-card"><span class="eyebrow">SENT</span><strong>{{ st.sent|bytes }}</strong></div>
+    <div class="metric-card"><span class="eyebrow">RECEIVED</span><strong>{{ st.received|bytes }}</strong></div>
+    <div class="metric-card"><span class="eyebrow">ACTIVE WINDOW</span><strong class="small-metric">{{ st.first|utc }}<br>{{ st.last|utc }}</strong></div>
+  </div>
+
+  <div class="grid-two equal">
+    <section class="panel">
+      <div class="panel-heading"><div><h3>Services contacted on this host</h3><p>Destination ports that received traffic</p></div></div>
+      <div class="bar-list">
+        {% set top = profile.services[0].n if profile.services else 1 %}
+        {% for s in profile.services %}
+          <div>
+            <div class="bar-label"><span class="mono">{{ s.proto }}/{{ s.port }}</span><strong>{{ '{:,}'.format(s.n) }}</strong></div>
+            <div class="bar-track"><div class="bar-fill" data-width="{{ s.n / top * 100 }}"></div></div>
+          </div>
+        {% else %}
+          <div class="empty"><strong>No inbound services observed</strong><span>This address only initiated traffic.</span></div>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><h3>Top peers</h3><p>Addresses this host exchanged the most bytes with</p></div></div>
+      <div class="talkers">
+        {% for p in profile.peers %}
+          <a href="{{ url_for('pages.host_detail', ip=p.peer, session=selected or '') }}">
+            <span class="rank">{{ loop.index }}</span><span class="mono">{{ p.peer }}</span><strong>{{ p.bytes|bytes }}</strong>{{ icon('arrow') }}
+          </a>
+        {% else %}
+          <div class="empty"><strong>No peers</strong><span>No traffic involving this address.</span></div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="panel-heading"><div><h3>Associated alerts</h3><p>Up to 50 recent alerts involving this address</p></div></div>
+    {{ alert_table(alerts) }}
+  </section>
+  <section class="panel">
+    <div class="panel-heading"><div><h3>Recent host activity</h3><p>Up to 100 recent packets where this address is the source or destination</p></div></div>
+    {{ packet_table(records) }}
+  </section>
+{% endblock %}

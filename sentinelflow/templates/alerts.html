@@ -1,1 +1,63 @@
-{% extends 'base.html' %}{% from 'macros.html' import icon,alert_table,pagination with context %}{% block content %}<div class="callout">{{icon('info')}}<div><strong>Investigate the evidence.</strong><span>These are behavioral indicators. Normal scanners, backups, and DNS resolvers can also trigger alerts.</span></div></div><section class="panel"><div class="panel-heading"><div><h3>Detection inbox</h3><p>{{count}} matching alerts · triage and document your findings</p></div><a class="button secondary" href="{{url_for('export',kind='alerts',session=selected or '')}}">{{icon('download')}} Export CSV</a></div><form class="filters" method="get"><input type="hidden" name="session" value="{{selected or ''}}"><div class="search-field">{{icon('search')}}<input name="q" value="{{q}}" placeholder="Search detection or address" aria-label="Search alerts"></div><select name="severity" aria-label="Severity"><option value="">All severities</option>{% for v in ['critical','high','medium','low'] %}<option value="{{v}}" {{'selected' if severity==v else ''}}>{{v|title}}</option>{% endfor %}</select><select name="status" aria-label="Status"><option value="">All statuses</option>{% for v in ['new','investigating','resolved','false_positive'] %}<option value="{{v}}" {{'selected' if status==v else ''}}>{{v|replace('_',' ')|title}}</option>{% endfor %}</select><button class="button primary">Filter</button><button type="button" class="button secondary refresh">{{icon('refresh')}}</button></form>{{alert_table(records)}}{{pagination(number,total_pages,count)}}</section>{% endblock %}
+{% extends 'base.html' %}
+{% from 'macros.html' import icon, csrf, alert_table, pagination with context %}
+
+{% block content %}
+  <div class="callout">
+    {{ icon('info') }}
+    <div>
+      <strong>Investigate the evidence.</strong>
+      <span>These are behavioral indicators. Normal scanners, backups, and DNS resolvers can also trigger alerts.</span>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div><h3>Detection inbox</h3><p>{{ '{:,}'.format(result.count) }} matching alerts · triage and document your findings</p></div>
+      <a class="button secondary" href="{{ url_for('exports.export', kind='alerts', session=selected or '') }}">{{ icon('download') }} Export CSV</a>
+    </div>
+
+    <form class="filters" method="get">
+      <input type="hidden" name="session" value="{{ selected or '' }}">
+      <div class="search-field">
+        {{ icon('search') }}
+        <input name="q" value="{{ q }}" placeholder="Search detection or address" aria-label="Search alerts">
+      </div>
+      <select name="severity" aria-label="Severity">
+        <option value="">All severities</option>
+        {% for v in ['critical', 'high', 'medium', 'low'] %}
+          <option value="{{ v }}" {{ 'selected' if severity == v else '' }}>{{ v|title }}</option>
+        {% endfor %}
+      </select>
+      <select name="status" aria-label="Status">
+        <option value="">All statuses</option>
+        {% for v in ['new', 'investigating', 'resolved', 'false_positive'] %}
+          <option value="{{ v }}" {{ 'selected' if status == v else '' }}>{{ v|replace('_', ' ')|title }}</option>
+        {% endfor %}
+      </select>
+      <button class="button primary">Filter</button>
+      <button type="button" class="button secondary refresh" aria-label="Refresh alerts">{{ icon('refresh') }}</button>
+    </form>
+
+    <form id="bulk-form" class="bulk-bar" method="post" action="{{ url_for('alerts.bulk_update') }}" hidden>
+      {{ csrf() }}
+      <input type="hidden" name="next" value="{{ request.full_path }}">
+      <strong data-selected-count>0 selected</strong>
+      <label class="sr-only" for="bulk-status">New status</label>
+      <select name="status" id="bulk-status">
+        {% for v in ['investigating', 'resolved', 'false_positive', 'new'] %}
+          <option value="{{ v }}">Mark {{ v|replace('_', ' ') }}</option>
+        {% endfor %}
+      </select>
+      <button class="button primary small-button">{{ icon('check') }} Apply to selection</button>
+      <button type="button" class="button ghost small-button" data-clear-selection>Clear</button>
+    </form>
+
+    <div class="new-alerts-banner" id="new-alerts-banner" hidden>
+      {{ icon('shield') }}<span data-new-alerts>New detections arrived.</span>
+      <button type="button" class="button secondary small-button refresh">Show them</button>
+    </div>
+
+    {{ alert_table(result.records, selectable=true) }}
+    {{ pagination(result) }}
+  </section>
+{% endblock %}
