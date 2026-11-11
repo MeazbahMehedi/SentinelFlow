@@ -47,5 +47,8 @@ jobs:
           python-version: "3.13"
           cache: pip
       - run: python -m pip install -r requirements-dev.txt
-      - run: python -m playwright install --with-deps chromium
+      # Use the Chrome preinstalled on GitHub's runner image; this avoids
+      # downloading browser system packages from the Ubuntu mirrors.
       - run: python scripts/browser_check.py
+        env:
+          SENTINELFLOW_CHROME: /usr/bin/google-chrome
