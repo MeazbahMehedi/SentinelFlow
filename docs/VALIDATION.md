@@ -1,61 +1,53 @@
 # Release validation
 
-Release: 1.1.1, 24 October 2026.
-
-## GitHub profile update
-
-The 1.1.1 update adds fixed GitHub-sourced profile cards. Its backend/API checks passed, including a 101-repository paginated fixture, independent profile/repository failures, stale profile retention, unsafe URL rejection, and denied POST writes. A real public API fetch succeeded for both configured accounts and returned avatar URLs. Desktop light/dark layout, filters, and both real GitHub avatars were inspected using a rendered Flask page in the managed static preview. The preview environment cannot execute Python, so the live Flask backend was checked through its test client and real API calls rather than a full browser-to-Flask session in this update. Earlier full-app browser checks below refer to release 1.1.0.
-
-See [GITHUB_PROFILE_UPDATE.md](GITHUB_PROFILE_UPDATE.md) for the specification supplement.
+Release: 1.2.0, 11 November 2026.
 
 ## Executed checks
 
 | Check | Result |
 |---|---|
-| `python -m pytest -q` | **111 passed** on Python 3.12; latest full run completed in 10.96 seconds |
-| `python scripts/evaluate.py` | Threat fixture: 501 packets and six detector categories; normal fixture: 60 packets and zero alerts |
+| `python -m pytest -q` | **161 passed** on Python 3.13 |
+| `ruff check .` and `ruff format --check .` | Clean |
+| `node --check` on all JavaScript | Clean |
+| `python scripts/evaluate.py` | Threat fixture: 548 packets, 9 alerts covering all nine detectors; normal fixture: 60 packets, zero alerts |
 | `python scripts/browser_check.py` | Passed against the actual `run.py` Waitress launcher in an isolated workspace |
-| Desktop browser | Ten pages checked at 1440 px width in both dark and light themes |
-| Mobile browser | Ten pages checked at 390 px width in both themes, without document-level horizontal overflow |
-| Browser interactions | Account creation, replay, six detections, triage note persistence, developer profile edit, and mobile navigation passed |
-| JavaScript | No uncaught exceptions observed during the exercised browser workflows |
-| Accounts | Gmail alias duplicate rejected; second browser account could not access first account data; role changes and legacy migration passed |
-| Appearance | Real theme toggle, saved preference, and theme persistence passed |
-| Shutdown | Repeated Ctrl+C with paused replay and active SSE connection exited with code 0 and no traceback |
-| GitHub | Public API fetched from both configured accounts; cache/error paths also covered by deterministic tests |
-| Word specification | 28 pages, rendered and visually inspected; nine diagrams and 59 functional requirements |
+| Desktop and mobile | Ten pages at 1440 px and 390 px in dark and light themes, with no horizontal overflow |
+| Browser interactions | Account creation, demo replay, nine detections, command palette navigation, triage notes, developer profile edit, theme persistence, mobile navigation |
+| Accounts | Duplicate email rejected; a second account cannot read the first account's data or edit shared profiles |
+| Shutdown | Repeated Ctrl+C during an active replay exits with code 0 and no traceback |
+| JavaScript | No uncaught page errors during the exercised workflows |
+| Screenshots | Regenerated with `scripts/capture_screenshots.py` and visually inspected |
 
-## Tested behavior
+## Regression coverage for 1.2 fixes
 
-- Six detector thresholds, evidence, distinct counting, window expiration, duplicate suppression, disabled rules, SYN ACK exclusions, DNS response exclusions, and IPv6 local ranges.
-- PCAP and single-interface PCAPNG parsing, IPv6, DNS normalization, timestamp sorting, invalid captures, unsupported link types, and rejection of multi-interface PCAPNG.
-- Replay invariance at 1x, 4x, and 32x, pause/resume/stop, active worker exclusion, restart replacement, frozen rule snapshots, and interrupted session handling.
-- Authenticated page/API access, CSRF rejection, security headers, password update, invalid configuration, and readable live permission errors.
-- Developer links, image/CV uploads, escaped profile text, private media paths, CSV formula escaping, alert triage, and session deletion cascades.
-- EVE alert imports, malformed input rejection, and compatibility with investigation and analytics pages.
-- Gmail canonicalization, duplicate prevention, database migration, linked legacy email, private streams/exports/records, administrator-only capture/profile editing, role management, and self-demotion protection.
-- Npcap absence, friendly interface enumeration, unavailable adapter handling, WinPcap error conversion, loopback normalization, and session quota before opening capture sockets.
-- Read-only GitHub allowlisting, public metadata parsing, five-minute cache, network failures, stale results, and rate-limit cooldowns.
+- A server replying to 30 client connections produces no port-scan alert.
+- Mid-stream (ACK-only) traffic to many ports produces no alert.
+- Connections to 25 internet hosts produce no host-scan alert.
+- Multicast, broadcast, directed-broadcast and IPv6 multicast traffic produces no scan or exfiltration alert.
+- A packet 5 seconds out of order still matches an indicator; packets older than the window are ignored.
+- A successful sign-in to one account does not reset the address throttle used against another.
+- Changing a password or revoking sessions signs out other browsers, for both pages and API calls.
+- The identity database contains no traffic tables; legacy 1.x data migrates once and an interrupted migration resumes cleanly.
+- Retention limits stop ingestion with an explicit error at exactly the configured count under batched writes.
+- Only one live capture can hold the host capture lock, and the lock is released when opening the interface fails.
 
 ## Reproduce
 
 ```bash
 python -m pip install -r requirements-dev.txt
+ruff check . && ruff format --check .
 python -m pytest -q
 python scripts/evaluate.py
-```
-
-Optional browser check:
-
-```bash
 python -m playwright install chromium
 python scripts/browser_check.py
 ```
 
-The browser check launches the actual application with a temporary data directory and an available local port. It does not change your normal account, sessions, or profiles.
+To use an installed Chrome instead of Playwright's Chromium, set `SENTINELFLOW_CHROME` to its executable path.
 
 ## Environment boundaries
 
-Physical network capture was not exercised because the release environment does not permit the required raw capture operations. Its permission failure path was tested. Windows Npcap and native Windows/macOS installation require checks on the intended demonstration computer. The supplied GitHub Actions workflow has not yet run in the user's repository.
+Physical network capture was not exercised because the validation environment does not permit raw capture; the driver-missing, permission-error, interface-selection and capture-lock paths are covered by tests. Windows Npcap and native Windows/macOS installs should be checked on the demonstration computer.
 
-The bundled fixtures are synthetic coverage examples. They do not establish production throughput, real-world detection accuracy, or the absence of all defects.
+The bundled fixtures are synthetic coverage examples. They do not establish production throughput or real-world detection accuracy.
+
+The diagrams in `docs/diagrams/` and `scripts/build_srs.py` document the 1.1 software requirements specification; the README architecture section reflects 1.2.
